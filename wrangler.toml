@@ -1,3 +1,4 @@
 name = "dea-rss"
 main = "src/index.ts"
 compatibility_date = "2023-07-24"
+account_id = "d5ccf1d783709bbdc23fc29786f38736"
