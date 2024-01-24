@@ -11,6 +11,7 @@ jobs:
     name: Deploy
     steps:
       - uses: actions/checkout@v4
+      - run: npm i -g pnpm
       - uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
