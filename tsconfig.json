@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "incremental": true,
+    "outDir": "./dist",
+	"target": "es2021",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+		"types": [
+			"@cloudflare/workers-types"
+		],
+		"isolatedModules": true,
+		"strict": true,
+	}
+}
