@@ -7,7 +7,6 @@ export interface deArrowBase {
 export interface deArrowTitle extends deArrowBase {
   title: string,
 }
-
 export interface deArrowThumb extends deArrowBase {
   timestamp: number | null,
 }

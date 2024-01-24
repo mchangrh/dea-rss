@@ -33,6 +33,35 @@ async function getDeArrow(videoID: string) {
 	}
 }
 
+async function deArrowFeed(feed: string): Promise<string> {
+	const ids = getVideoIDs(feed)
+	const replaceChunkMatch = (search: RegExp, chunk: string, replacement: string) => {
+		const match = chunk.match(search)?.[1]
+		if (match) feed = feed.replace(match, replacement)
+		return feed
+	}
+	for (const id of ids) {
+		// get data
+		const deData = await getDeArrow(id)
+		// find chunk
+		const chunkRegex = new RegExp(`(<entry>\\s*<id>yt:video:${id}<\/id>(.|\\n)+?<\/entry>)`)
+		const chunkMatch = feed.match(chunkRegex)
+		if (!chunkMatch) continue
+		const chunk = chunkMatch[1]
+		// replace title in entry
+		const entryTitleRegex = new RegExp(`<title>(.+?)<\/title>`)
+		feed = replaceChunkMatch(entryTitleRegex, chunk, deData.title)
+		// replace title in media
+		const mediaTitleRegex = new RegExp(`<media:title>(.+?)<\/media:title>`)
+		feed = replaceChunkMatch(mediaTitleRegex, chunk, deData.title)
+		// replace thumbnail
+		const thumbnailRegex = new RegExp(`<media:thumbnail url="(.+?)" width`)
+		const correctedThumb = deData.thumbnail.replace("&", "&amp;")
+		feed = replaceChunkMatch(thumbnailRegex, chunk, correctedThumb)
+	}
+	return feed
+}
+
 export const worker = {
 	async fetch(
 		request: Request,
@@ -42,32 +71,10 @@ export const worker = {
 		const url = new URL(request.url)
 		const channelID = url.pathname.split("/").pop()
 		if (!channelID) return new Response('No ChannelID in path', { status: 400 })
-		let data = await getFeed(channelID)
-		const ids = getVideoIDs(data)
-		const replaceChunkMatch = (search: RegExp, chunk: string, replacement: string) => {
-			const match = chunk.match(search)?.[1]
-			if (match) data = data.replace(match, replacement)
-			return data
-		}
-		for (const id of ids) {
-			// get data
-			const deData = await getDeArrow(id)
-			// find chunk
-			const chunkRegex = new RegExp(`(<entry>\\s*<id>yt:video:${id}<\/id>(.|\\n)+?<\/entry>)`)
-			const chunkMatch = data.match(chunkRegex)
-			if (!chunkMatch) continue
-			const chunk = chunkMatch[1]
-			// replace title in entry
-			const entryTitleRegex = new RegExp(`<title>(.+?)<\/title>`)
-			data = replaceChunkMatch(entryTitleRegex, chunk, deData.title)
-			// replace title in media
-			const mediaTitleRegex = new RegExp(`<media:title>(.+?)<\/media:title>`)
-			data = replaceChunkMatch(mediaTitleRegex, chunk, deData.title)
-			// replace thumbnail
-			const thumbnailRegex = new RegExp(`<media:thumbnail url="(.+?)" width`)
-			const correctedThumb = deData.thumbnail.replace("&", "&amp;")
-			data = replaceChunkMatch(thumbnailRegex, chunk, correctedThumb)
-		}
+		const data = await getFeed(channelID)
+			.then(feed => deArrowFeed(feed))
+			.catch(err => err)
+		if (typeof data !== "string") return new Response(data, { status: 500 })
 		return new Response(data, {
 			status: 200,
 			headers: {
