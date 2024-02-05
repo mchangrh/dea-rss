@@ -71,6 +71,7 @@ export const worker = {
 		const url = new URL(request.url)
 		const channelID = url.pathname.split("/").pop()
 		if (!channelID) return new Response('No ChannelID in path', { status: 400 })
+		if (!channelID.match(/UC[0-9A-Za-z_-]{21}[AQgw]/)) return new Response('Invalid ChannelID', { status: 400 })
 		const data = await getFeed(channelID)
 			.then(feed => deArrowFeed(feed))
 			.catch(err => err)

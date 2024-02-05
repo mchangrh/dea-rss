@@ -7,6 +7,7 @@
     "wrangler": "3.24.0"
   },
   "private": true,
+  "license": "MIT",
   "scripts": {
     "start": "wrangler dev",
     "deploy": "wrangler deploy"
