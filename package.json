@@ -2,9 +2,9 @@
   "name": "dea-rss",
   "version": "0.0.1",
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20240117.0",
+    "@cloudflare/workers-types": "^4.20240222.0",
     "typescript": "^5.3.3",
-    "wrangler": "3.24.0"
+    "wrangler": "3.30.1"
   },
   "private": true,
   "license": "MIT",
